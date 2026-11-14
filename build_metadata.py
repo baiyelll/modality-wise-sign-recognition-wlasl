@@ -44,6 +44,10 @@ for vid, v in nslt.items():
         dict(video_id=vid, path=str(videos[vid]), label=v["action"][0], **info[vid])
     )
 df = pd.DataFrame(rows)
+# The gazquez videos are already trimmed to the sign (e.g. 70244: range 1146-1241 -> 96-frame file), while the
+# json frame_start/frame_end index the ORIGINAL untrimmed videos. Applying them here would cut or empty clips
+# (131 of 2038 have frame_start beyond the end of the file), so always use each clip whole.
+df["frame_start"], df["frame_end"] = 1, -1
 print(
     f"WLASL100 listed: {len(nslt)} | found: {len(df)} | missing files: {missing} | no metadata: {no_meta}"
 )

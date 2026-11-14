@@ -2,7 +2,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "data"
-RAW = ROOT / "wlasl-processed"  # where the Kaggle download lives
+RAW = Path(__file__).resolve().parent / "wlasl-full"  # WLASL100 videos + json, made by fetch_wlasl100.py
 LM = DATA / "landmarks"
 RUNS = ROOT / "runs"
 META_CSV = DATA / "metadata.csv"
