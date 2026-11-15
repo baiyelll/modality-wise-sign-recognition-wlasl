@@ -1,0 +1,17 @@
+{
+  "mods": "HPFL",
+  "model": "transformer",
+  "split": "si",
+  "workers": 0,
+  "wd": 0.05,
+  "amp": false,
+  "T": 32,
+  "seed": 1,
+  "epochs": 100,
+  "bs": 32,
+  "lr": 0.0003,
+  "overfit": false,
+  "shuffle_labels": false,
+  "commit": "d5fa6b6",
+  "device": "cuda"
+}

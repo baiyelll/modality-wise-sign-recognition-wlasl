@@ -1,0 +1,17 @@
+{
+  "mods": "HP",
+  "model": "vit",
+  "split": "si",
+  "workers": 2,
+  "wd": 0.05,
+  "amp": true,
+  "T": 32,
+  "seed": 0,
+  "epochs": 30,
+  "bs": 32,
+  "lr": 5e-05,
+  "overfit": false,
+  "shuffle_labels": false,
+  "commit": "d5fa6b6",
+  "device": "cuda"
+}

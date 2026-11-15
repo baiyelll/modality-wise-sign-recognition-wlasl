@@ -1,0 +1,17 @@
+{
+  "mods": "RGB",
+  "model": "i3d",
+  "split": "si",
+  "workers": 4,
+  "wd": 0.05,
+  "amp": true,
+  "T": 32,
+  "seed": 0,
+  "epochs": 30,
+  "bs": 8,
+  "lr": 0.0001,
+  "overfit": false,
+  "shuffle_labels": false,
+  "commit": "d5fa6b6",
+  "device": "cuda"
+}

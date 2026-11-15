@@ -6,7 +6,7 @@ ROOT = Path(os.environ.get("WLASL_ROOT", Path(__file__).resolve().parent.parent)
 DATA = ROOT / "data"
 RAW = Path(os.environ.get("WLASL_RAW", Path(__file__).resolve().parent / "wlasl-full"))  # WLASL100 videos + json, made by fetch_wlasl100.py
 LM = DATA / "landmarks"
-RUNS = ROOT / "runs"
+RUNS = ROOT / "runs" if "WLASL_ROOT" in os.environ else Path(__file__).resolve().parent / "runs"  # local default: inside the repo
 META_CSV = DATA / "metadata.csv"
 SPLIT_CSV = DATA / "split.csv"
 
