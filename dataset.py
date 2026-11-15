@@ -1,7 +1,7 @@
 import numpy as np
 import torch
 from torch.utils.data import Dataset
-from config import LM, face_indices
+from config import LM, RAW, face_indices
 
 BE, LIPS = face_indices()
 STREAMS = {"H": "hands", "P": "pose", "F": "brows_eyes", "L": "lips"}
@@ -95,15 +95,7 @@ class SignDataset(Dataset):
 # into ONE 224x224 image, colour-coded by time (viridis), so a 2D image model
 # sees the same information as the landmark transformer (x, y only).
 # ---------------------------------------------------------------------------
-def _conns():
-    import mediapipe as mp
-
-    pose = [(a, b) for a, b in mp.solutions.pose.POSE_CONNECTIONS if a < 25 and b < 25]
-    hand = [(a, b) for a, b in mp.solutions.hands.HAND_CONNECTIONS]
-    return pose, hand
-
-
-_POSE_C, _HAND_C = _conns()
+from mp_constants import POSE_CONNECTIONS as _POSE_C, HAND_CONNECTIONS as _HAND_C
 _MEAN = np.array([0.485, 0.456, 0.406], np.float32)[:, None, None]
 _STD = np.array([0.229, 0.224, 0.225], np.float32)[:, None, None]
 
@@ -115,10 +107,10 @@ def render_skeleton(hands, pose, S=224):
     img = np.zeros((S, S, 3), np.uint8)
     T = len(pose)
     cols = cv2.applyColorMap(np.linspace(40, 255, T).astype(np.uint8).reshape(-1, 1), cv2.COLORMAP_VIRIDIS)
-    cols = cols.reshape(-1, 3).tolist()
+    cols = cols.reshape(-1, 3)[:, ::-1].tolist()  # applyColorMap gives BGR; the canvas is RGB
 
-    def px(p):  # x in [-3,3], y in [-2.5,3.5] (shoulder widths) -> pixels
-        xy = np.stack([(p[:, 0] + 3) / 6, (p[:, 1] + 2.5) / 6], 1) * S
+    def px(p):  # x in [-2,2], y in [-1.5,2.5] (shoulder widths, shoulder midpoint = origin) -> pixels
+        xy = np.stack([(p[:, 0] + 2) / 4, (p[:, 1] + 1.5) / 4], 1) * S
         return np.clip(xy, 0, S - 1).astype(np.int32).tolist()
 
     for t in range(T):
@@ -164,7 +156,7 @@ def cache_frames(row, T=32, S=176):
     FR.mkdir(parents=True, exist_ok=True)
     start = max(int(row.frame_start) - 1, 0)
     end = int(row.frame_end) - 1 if int(row.frame_end) > 0 else None
-    cap = cv2.VideoCapture(str(row.path))
+    cap = cv2.VideoCapture(str(RAW / "videos" / f"{row.video_id}.mp4"))  # split.csv paths are machine-specific
     fr, i = [], 0
     while True:
         ok, f = cap.read()

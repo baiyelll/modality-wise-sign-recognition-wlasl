@@ -1,33 +1,22 @@
+import os
 from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent.parent
+# data/ (landmarks, split.csv) and runs/ live under ROOT. Default: the folder above this repo; on Colab set WLASL_ROOT.
+ROOT = Path(os.environ.get("WLASL_ROOT", Path(__file__).resolve().parent.parent))
 DATA = ROOT / "data"
-RAW = Path(__file__).resolve().parent / "wlasl-full"  # WLASL100 videos + json, made by fetch_wlasl100.py
+RAW = Path(os.environ.get("WLASL_RAW", Path(__file__).resolve().parent / "wlasl-full"))  # WLASL100 videos + json, made by fetch_wlasl100.py
 LM = DATA / "landmarks"
 RUNS = ROOT / "runs"
 META_CSV = DATA / "metadata.csv"
 SPLIT_CSV = DATA / "split.csv"
 
-if not RAW.exists():
-    raise SystemExit(f"Dataset folder not found: {RAW}")
+# RAW (videos + json) is only needed by build_metadata.py, fetch_wlasl100.py and the I3D frame cache.
 LM.mkdir(parents=True, exist_ok=True)
 RUNS.mkdir(parents=True, exist_ok=True)
 
 
 def face_indices():
-    """Return (brows+eyes indices, lips indices) of the 468-pt face mesh."""
-    import mediapipe as mp
+    """Return (brows+eyes indices, lips indices) of the 468-pt face mesh (frozen in mp_constants.py)."""
+    from mp_constants import BROWS_EYES, LIPS
 
-    fm = mp.solutions.face_mesh
-
-    def idx(*conns):
-        return sorted({i for c in conns for e in c for i in e})
-
-    lips = idx(fm.FACEMESH_LIPS)
-    be = idx(
-        fm.FACEMESH_LEFT_EYE,
-        fm.FACEMESH_RIGHT_EYE,
-        fm.FACEMESH_LEFT_EYEBROW,
-        fm.FACEMESH_RIGHT_EYEBROW,
-    )
-    return be, lips
+    return BROWS_EYES, LIPS

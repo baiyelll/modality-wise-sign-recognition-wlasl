@@ -5,10 +5,11 @@ from concurrent.futures import ThreadPoolExecutor
 API = "https://www.kaggle.com/api/v1/datasets/download/gazquez/wlasl-processed"
 HERE = pathlib.Path(__file__).resolve().parent
 SRC = HERE.parent / "wlasl-processed"  # only used to copy the two json files
-OUT = HERE / "wlasl-full"
+OUT = pathlib.Path(__import__("os").environ.get("WLASL_RAW", HERE / "wlasl-full"))
 (OUT / "videos").mkdir(parents=True, exist_ok=True)
 for f in ("WLASL_v0.3.json", "nslt_100.json"):
-    shutil.copy(SRC / f, OUT / f)
+    if not (OUT / f).exists():
+        shutil.copy(SRC / f, OUT / f)  # fails with a clear error if neither location has the json
 
 
 def resolve():
@@ -23,7 +24,7 @@ i = tail.rfind(b"PK\x05\x06")
 _, _, _, _, n_tot, cd_size, cd_off, _ = struct.unpack("<IHHHHIIH", tail[i:i + 22])
 cd = tail[len(tail) - (size - cd_off):][:cd_size]
 
-ids = {k.zfill(5) for k in json.load(open(SRC / "nslt_100.json"))}
+ids = {k.zfill(5) for k in json.load(open(OUT / "nslt_100.json"))}
 todo, p = {}, 0
 while p < len(cd) and cd[p:p + 4] == b"PK\x01\x02":
     method = struct.unpack("<H", cd[p + 10:p + 12])[0]
